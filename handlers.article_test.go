@@ -3,6 +3,8 @@
 package main
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -40,7 +42,7 @@ func TestArticleUnauthenticated(t *testing.T) {
 	r := getRouter(true)
 
 	// Define the route similar to its definition in the routes file
-	r.GET("/article/view/:artice_id", getArticle)
+	r.GET("/article/view/:article_id", getArticle)
 
 	// Create a request to send to the above route
 	req, _ := http.NewRequest("GET", "/article/view/1", nil)
@@ -56,5 +58,65 @@ func TestArticleUnauthenticated(t *testing.T) {
 		pageOK := err == nil && strings.Index(string(p), "<title>Article 1</title>") > 0
 
 		return statusOK && pageOK
+	})
+}
+
+// Test that the GET request to the home page returns the list of articles
+// in JSON format when the Accept header is set to application/json
+func TestArticleListJson(t *testing.T) {
+	r := getRouter(true)
+
+	// Define the route similar to its definition in the routes file
+	r.GET("/", showIndexPage)
+
+	// Create a request to send to the above route
+	req, _ := http.NewRequest("GET", "/", nil)
+	req.Header.Add("Accept", "application/json")
+
+	testHttpResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+		// Test that the http status code is 200
+		statusOK := w.Code == http.StatusOK
+
+		// Test that the response is JSON which can be converted to
+		// an array of Article structs
+		p, err := ioutil.ReadAll(w.Body)
+		if err != nil {
+			return false
+		}
+
+		var articles []article
+		err = json.Unmarshal(p, &articles)
+
+		return err == nil && len(articles) >= 2 && statusOK
+	})
+}
+
+// Test that a GET request to an article page returns the article in XML
+// format when the Accept header is set to application/xml
+func TestArticleXML(t *testing.T) {
+	r := getRouter(true)
+
+	// Define the route similar to its definition in the routes file
+	r.GET("/article/view/:article_id", getArticle)
+
+	// Create a request to send to the above route
+	req, _ := http.NewRequest("GET", "/article/view/1", nil)
+	req.Header.Add("Accept", "application/xml")
+
+	testHttpResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+		// Test that the http status code is 200
+		statusOK := w.Code == http.StatusOK
+
+		//Test that the response is XML which can be converted to
+		//an array of Article structs
+		p, err := ioutil.ReadAll(w.Body)
+		if err != nil {
+			return false
+		}
+
+		var a article
+		err = xml.Unmarshal(p, &a)
+
+		return err == nil && a.ID == 1 && len(a.Title) >= 0 && statusOK
 	})
 }

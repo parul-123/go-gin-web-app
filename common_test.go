@@ -24,13 +24,13 @@ func TestMain(m *testing.M) {
 func getRouter(withTemplates bool) *gin.Engine {
 	r := gin.Default()
 	if withTemplates {
-		r.LoadHTMLGlob("/templates*")
+		r.LoadHTMLGlob("templates/*")
 	}
 	return r
 }
 
 // Helper function to process a request and test its response
-func testHttpResponse(t *testing.T, r *gin.Engine, req *http.Request, f func(w *httptest.ResponseRecorder bool)) {
+func testHttpResponse(t *testing.T, r *gin.Engine, req *http.Request, f func(w *httptest.ResponseRecorder) bool) {
 
 	// Create a response recorder
 	w := httptest.NewRecorder()
@@ -38,18 +38,18 @@ func testHttpResponse(t *testing.T, r *gin.Engine, req *http.Request, f func(w *
 	// Create the service and process the above request.
 	r.ServeHTTP(w, req)
 
-	if !f(w){
+	if !f(w) {
 		t.Fail()
 	}
+}
 
-	// This function used to store the main lists into temperory one
-	// for testing
-	func saveList() {
-		tmpArticleList = articleList
-	}
+// This function used to store the main lists into temperory one
+// for testing
+func saveLists() {
+	tmpArticleList = articleList
+}
 
-	// This function is used to restore the main lists from the temperory one
-	func restoreLists(){
-		articleList = tmpArticleList
-	}
+// This function is used to restore the main lists from the temperory one
+func restoreLists() {
+	articleList = tmpArticleList
 }
