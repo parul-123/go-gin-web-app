@@ -1,6 +1,6 @@
 // handlers.article_test.go
 
-package main
+package test
 
 import (
 	"encoding/json"
@@ -10,6 +10,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"go-gin-web-app/handlers"
+	"go-gin-web-app/models"
 )
 
 // Test that a GET request to the home page returns the home page with
@@ -17,7 +19,7 @@ import (
 func TestShowIndexPageUnauthenticated(t *testing.T) {
 	r := getRouter(true)
 
-	r.GET("/", showIndexPage)
+	r.GET("/", handlers.ShowIndexPage)
 
 	// Create a request to send to the above route
 	req, _ := http.NewRequest("GET", "/", nil)
@@ -42,7 +44,7 @@ func TestArticleUnauthenticated(t *testing.T) {
 	r := getRouter(true)
 
 	// Define the route similar to its definition in the routes file
-	r.GET("/article/view/:article_id", getArticle)
+	r.GET("/article/view/:article_id", handlers.GetArticle)
 
 	// Create a request to send to the above route
 	req, _ := http.NewRequest("GET", "/article/view/1", nil)
@@ -67,7 +69,7 @@ func TestArticleListJson(t *testing.T) {
 	r := getRouter(true)
 
 	// Define the route similar to its definition in the routes file
-	r.GET("/", showIndexPage)
+	r.GET("/", handlers.ShowIndexPage)
 
 	// Create a request to send to the above route
 	req, _ := http.NewRequest("GET", "/", nil)
@@ -84,7 +86,7 @@ func TestArticleListJson(t *testing.T) {
 			return false
 		}
 
-		var articles []article
+		var articles []models.Article
 		err = json.Unmarshal(p, &articles)
 
 		return err == nil && len(articles) >= 2 && statusOK
@@ -97,7 +99,7 @@ func TestArticleXML(t *testing.T) {
 	r := getRouter(true)
 
 	// Define the route similar to its definition in the routes file
-	r.GET("/article/view/:article_id", getArticle)
+	r.GET("/article/view/:article_id", handlers.GetArticle)
 
 	// Create a request to send to the above route
 	req, _ := http.NewRequest("GET", "/article/view/1", nil)
@@ -114,7 +116,7 @@ func TestArticleXML(t *testing.T) {
 			return false
 		}
 
-		var a article
+		var a models.Article
 		err = xml.Unmarshal(p, &a)
 
 		return err == nil && a.ID == 1 && len(a.Title) >= 0 && statusOK

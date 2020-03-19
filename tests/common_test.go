@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"net/http"
@@ -7,9 +7,10 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"go-gin-web-app/models"
 )
 
-var tmpArticleList []article
+var tmpArticleList []models.Article
 
 // This function is used for setup before executing the test functions
 func TestMain(m *testing.M) {
@@ -24,7 +25,7 @@ func TestMain(m *testing.M) {
 func getRouter(withTemplates bool) *gin.Engine {
 	r := gin.Default()
 	if withTemplates {
-		r.LoadHTMLGlob("templates/*")
+		r.LoadHTMLGlob("../templates/*")
 	}
 	return r
 }
@@ -46,10 +47,10 @@ func testHttpResponse(t *testing.T, r *gin.Engine, req *http.Request, f func(w *
 // This function used to store the main lists into temperory one
 // for testing
 func saveLists() {
-	tmpArticleList = articleList
+	tmpArticleList = models.ArticleList
 }
 
 // This function is used to restore the main lists from the temperory one
 func restoreLists() {
-	articleList = tmpArticleList
+	models.ArticleList = tmpArticleList
 }

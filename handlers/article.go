@@ -1,33 +1,35 @@
 // handlers.article.go
 
-package main
+package handlers
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go-gin-web-app/models"
+	"go-gin-web-app/utils"
 )
 
-func showIndexPage(c *gin.Context) {
-	articles := getAllArticles()
+func ShowIndexPage(c *gin.Context) {
+	articles := models.GetAllArticles()
 
 	// Call the render function with the name of the
 	// template to render
-	render(c, gin.H{
+	utils.Render(c, gin.H{
 		"title":   "Home Page",
 		"payload": articles}, "index.html")
 }
 
-func getArticle(c *gin.Context) {
+func GetArticle(c *gin.Context) {
 	// Check if the article ID is valid
 	if articleID, err := strconv.Atoi(c.Param("article_id")); err == nil {
 		// Check if the article exists
-		if article, err := getArticleByID(articleID); err == nil {
+		if article, err := models.GetArticleByID(articleID); err == nil {
 
 			// Call the render function with the name of the
 			// template to render
-			render(c, gin.H{
+			utils.Render(c, gin.H{
 				"title":   article.Title,
 				"payload": article}, "article.html")
 
