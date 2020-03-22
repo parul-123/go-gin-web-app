@@ -47,10 +47,10 @@ func testHttpResponse(t *testing.T, r *gin.Engine, req *http.Request, f func(w *
 // This function used to store the main lists into temperory one
 // for testing
 func saveLists() {
-	tmpArticleList = models.ArticleList
+	tmpArticleList = models.ArticleListDB
 }
 
 // This function is used to restore the main lists from the temperory one
 func restoreLists() {
-	models.ArticleList = tmpArticleList
+	models.ArticleListDB = tmpArticleList
 }

@@ -13,15 +13,15 @@ func TestGetAllArticles(t *testing.T) {
 
 	//Check that the length of the list of articles returned is the
 	//same as the length of the global variable holding the list.
-	if len(alist) != len(models.ArticleList) {
+	if len(alist) != len(models.ArticleListDB) {
 		t.Fail()
 	}
 
 	//Check that each member is identical
 	for i, v := range alist {
-		if v.Content != models.ArticleList[i].Content ||
-			v.ID != models.ArticleList[i].ID ||
-			v.Title != models.ArticleList[i].Title {
+		if v.Content != models.ArticleListDB[i].Content ||
+			v.ID != models.ArticleListDB[i].ID ||
+			v.Title != models.ArticleListDB[i].Title {
 
 			t.Fail()
 			break
@@ -33,7 +33,7 @@ func TestGetAllArticles(t *testing.T) {
 func TestGetArticleByID(t *testing.T) {
 	a, err := models.GetArticleByID(1)
 
-	if err != nil || a.ID != 1 || a.Title != "Article 1" || a.Content != "Article 1 body" {
+	if err != nil || a.ID != 1 || a.Title != models.ArticleListDB[0].Title || a.Content != models.ArticleListDB[0].Content {
 		t.Fail()
 	}
 }

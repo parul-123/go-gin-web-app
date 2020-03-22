@@ -57,7 +57,7 @@ func TestArticleUnauthenticated(t *testing.T) {
 		// You can carry out a lot more detailed tests using libraries that can
 		// parse and process HTML pages
 		p, err := ioutil.ReadAll(w.Body)
-		pageOK := err == nil && strings.Index(string(p), "<title>Article 1</title>") > 0
+		pageOK := err == nil && strings.Index(string(p), "<title>"+models.ArticleListDB[0].Title+"</title>") > 0
 
 		return statusOK && pageOK
 	})
