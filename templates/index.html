@@ -5,10 +5,14 @@
 
     {{ range .payload}}
         <!-- Create link for the article based on its ID -->
-        <a href="/article/view/{{.ID}}">
-            <!-- Display the title of the article -->
-            <h2>{{.Title}}</h2>
-        </a>
+        <div class="article_detail">
+            <a style="display: inline-block" href="/article/view/{{.ID}}">
+                <!-- Display the title of the article -->
+                <h2>{{.Title}}</h2>
+            </a>
+            <button class="btn" onclick="location.href='/article/update/{{.ID}}'"><i class="fa fa-edit"></i></button>
+            <button class="btn" onclick="location.href='/article/delete/{{.ID}}'"><i class="fa fa-trash"></i></button>
+        </div>
         <!-- Display the content of the article-->
         <p>{{.Content}}</p>
     {{ end }}

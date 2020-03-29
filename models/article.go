@@ -36,7 +36,7 @@ var ArticleListDB []Article
 
 // Return a list of articles
 func GetAllArticles() []Article {
-	db := psqlDB();
+	db := psqlDB()
 	ArticleListDB = []Article{}
 	defer db.Close()
 
@@ -57,12 +57,12 @@ func GetAllArticles() []Article {
 		 _, err = db.Exec("INSERT INTO article (title, content) VALUES" +
 		  "('Article 1', 'Article 1 Content'), ('Article 2', 'Article 2 Content'), ('Article 3', 'Article 3 Content')")
 		 if err != nil {
-			 fmt.Println("Error while adding sample data in article table")
+			 fmt.Println("Err whileor while adding sample data in article table")
 			 panic(err.Error())
 		 }
 	}
 
-	rows, err := db.Query("SELECT * FROM article")
+	rows, err := db.Query("SELECT * FROM article ORDER BY id ASC")
 	defer rows.Close()
 
 	for rows.Next() {
@@ -99,9 +99,53 @@ func GetArticleByID(id int) (*Article, error) {
 	return nil, errors.New("Article Not Found")
 }
 
+func CreateNewArticle(title, content string) (*Article, error) {
+	db := psqlDB()
+	defer db.Close()
+
+	sqlStatement := `INSERT INTO article (title, content)
+	VALUES ($1, $2)`
+	
+	_, err := db.Exec(sqlStatement, title, content)
+
+	added_article := Article{
+		Title: title,
+		Content: content,
+	}
+
+	return &added_article, err
+}
+
+func UpdateExistingArticle(Id int, title, content string) (*Article, error) {
+	db := psqlDB()
+	defer db.Close()
+
+	sqlStatement := `UPDATE article SET title = $2, content = $3 
+	WHERE id = $1`;
+
+	_, err := db.Exec(sqlStatement, Id, title, content)
+
+	updated_article := Article{
+		Title: title,
+		Content: content,
+	}
+	return &updated_article, err
+}
+
+func DeleteExistingArticle(id int) (error) {
+	db := psqlDB()
+	defer db.Close()
+
+	sqlStatement := `DELETE FROM article
+	WHERE id = $1`
+
+	_, err := db.Exec(sqlStatement, id)
+	return err
+}
+
 // Setup a connection to the database
 func psqlDB() (*sql.DB) {
-	fmt.Println(port, host, user, password, dbname);
+	// fmt.Println(port, host, user, password, dbname);
 	psqlInfo := fmt.Sprintf("port=%d host=%s user=%s " +
 		"password=%s dbname=%s sslmode=disable",
 		port, host, user, password, dbname)
