@@ -57,7 +57,7 @@ func GetAllArticles() []Article {
 		 _, err = db.Exec("INSERT INTO article (title, content) VALUES" +
 		  "('Article 1', 'Article 1 Content'), ('Article 2', 'Article 2 Content'), ('Article 3', 'Article 3 Content')")
 		 if err != nil {
-			 fmt.Println("Err whileor while adding sample data in article table")
+			 fmt.Println("Error while adding sample data in article table")
 			 panic(err.Error())
 		 }
 	}
