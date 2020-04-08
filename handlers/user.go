@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"database/sql"
 
 	"github.com/gin-gonic/gin"
 	"go-gin-web-app/utils"
@@ -28,7 +29,7 @@ func PerformLogin(c *gin.Context){
 	// var sameSiteCookie http.SameSite;
 
 	// Check if the username and password combination is valid
-	if models.IsUserValid(username, password){
+	if err := models.IsUserValid(username, password); err == nil {
 		// If the username and password is valid set the token in a cookie
 		token := generateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
@@ -38,12 +39,19 @@ func PerformLogin(c *gin.Context){
 			"title": "Successful Login",
 		}, "login-successful.html")
 	} else {
-		// If the username and password combination is invalid,
-		// show the error message on the login page
-		c.HTML(http.StatusBadRequest, "login.html", gin.H{
-			"ErrorTitle": "Login Failed",
-			"ErrorMessage": "Invalid credentials provided",
-		})
+		if err == sql.ErrNoRows {
+			c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+				"ErrorTitle": "Login Failed",
+				"ErrorMessage": "Invalid credentials provided",
+			})
+		} else {
+			// If the username and password combination is invalid,
+			// show the error message on the login page
+			c.HTML(http.StatusInternalServerError, "login.html", gin.H{
+				"ErrorTitle": "Login Failed",
+				"ErrorMessage": "Invalid credentials provided",
+			})
+		}
 	}
 }
 
@@ -80,7 +88,7 @@ func Register(c *gin.Context){
 
 	// var sameSiteCookie http.SameSite;
 
-	if _, err := models.RegisterNewUser(username, password); err == nil {
+	if err := models.RegisterNewUser(username, password); err == nil {
 		// If the user is created, set the token in a cookie and log the user in
 		token := generateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
