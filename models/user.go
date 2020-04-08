@@ -20,11 +20,11 @@ type User struct {
 // from a database. Moreover in, production settings, we should
 // store passwords securely by storing and hashing them instead of
 // using them as we are doing in this demo
-var UserList = []User{
-	User{Username: "user1", Password: "pass1"},
-	User{Username: "user2", Password: "pass2"},
-	User{Username: "user3", Password: "pass3"},
-}
+// var UserList = []User{
+// 	User{Username: "user1", Password: "pass1"},
+// 	User{Username: "user2", Password: "pass2"},
+// 	User{Username: "user3", Password: "pass3"},
+// }
 
 // Check if the username and password combination is valid
 func IsUserValid(username, password string) error {

@@ -17,10 +17,10 @@ type Article struct {
 // For this demo, we are storing the article list in memory
 // In a real application, this list will most likely be fetched
 // from a database or from static files
-var ArticleList = []Article{
-	Article{ID: 1, Title: "Article 1", Content: "Article 1 body"},
-	Article{ID: 2, Title: "Article 2", Content: "Article 2 body"},
-}
+// var ArticleList = []Article{
+// 	Article{ID: 1, Title: "Article 1", Content: "Article 1 body"},
+// 	Article{ID: 2, Title: "Article 2", Content: "Article 2 body"},
+// }
 
 var ArticleListDB []Article
 
