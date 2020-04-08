@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"database/sql"
 	_ "github.com/lib/pq"
+	"github.com/gomodule/redigo/redis"
 )
 
 const (
@@ -32,4 +33,13 @@ func psqlDB() (*sql.DB) {
 	// }
 	// fmt.Println("Successfully Connected!")
 	return db
+}
+
+func InitRedisCache() (redis.Conn){
+	// Initialize the redis connection to a redis instance in local
+	conn, err := redis.DialURL("redis://localhost")
+	if err != nil {
+		panic(err.Error())
+	}
+	return conn
 }

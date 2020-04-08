@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"database/sql"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"go-gin-web-app/utils"
@@ -31,8 +32,26 @@ func PerformLogin(c *gin.Context){
 	// Check if the username and password combination is valid
 	if err := models.IsUserValid(username, password); err == nil {
 		// If the username and password is valid set the token in a cookie
-		token := generateSessionToken()
-		c.SetCookie("token", token, 3600, "", "", false, true)
+		sessionToken := generateSessionToken()
+		// Set the token in the cache, along with the user whom it represents
+		// The token has an expiry time of 3600 seconds
+		cache := models.InitRedisCache()
+		fmt.Println("Adding sessionToken in redis cache")
+		_, error := cache.Do("SETEX", sessionToken, "3600", username)
+		if error != nil {
+			// If there is an error in setting the cache, return an internal server error
+			c.HTML(http.StatusInternalServerError, "login.html", gin.H{
+				"ErrorTitle": "Login Failed",
+				"ErrorMessage": "Internal Server Error",})
+		}
+		_, error = cache.Do("SETEX", username, "3600", sessionToken)
+		if error != nil {
+			// If there is an error in setting the cache, return an internal server error
+			c.HTML(http.StatusInternalServerError, "login.html", gin.H{
+				"ErrorTitle": "Login Failed",
+				"ErrorMessage": "Internal Server Error",})
+		}
+		c.SetCookie("session_token", sessionToken, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
 
 		utils.Render(c, gin.H{
@@ -66,9 +85,24 @@ func Logout(c *gin.Context){
 
 	// var sameSiteCookie http.SameSite;
 
-	// Clear the cookie
-	c.SetCookie("token", "", -1, "", "", false, true)
+	// Get the session value from redis cache
+	cache := models.InitRedisCache()
+	sessionToken, err := c.Cookie("session_token")
 
+	// Delete the older session token from redis cache
+	fmt.Println("Deleting older sessionToken in redis cache")
+	username, err := cache.Do("GET", sessionToken)
+	_, err = cache.Do("DEL", sessionToken)
+	if err != nil {
+		c.Redirect(http.StatusInternalServerError, "/")
+	}
+	_, err = cache.Do("DEL", username)
+	if err != nil {
+		c.Redirect(http.StatusInternalServerError, "/")
+	}
+
+	// Clear the cookie
+	c.SetCookie("session_token", "", -1, "", "", false, true)
 	// Redirect to the home page
 	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
@@ -90,8 +124,27 @@ func Register(c *gin.Context){
 
 	if err := models.RegisterNewUser(username, password); err == nil {
 		// If the user is created, set the token in a cookie and log the user in
-		token := generateSessionToken()
-		c.SetCookie("token", token, 3600, "", "", false, true)
+		sessionToken := generateSessionToken()
+
+		// Set the token in the cache, along with the user whom it represents
+		// The token has an expiry time of 3600 seconds
+		cache := models.InitRedisCache()
+		fmt.Println("Adding sessionToken in redis cache")
+		_, error := cache.Do("SETEX", sessionToken, "3600", username)
+		if error != nil {
+			// If there is an error in setting the cache, return an internal server error
+			c.HTML(http.StatusInternalServerError, "register.html", gin.H{
+				"ErrorTitle": "Registration Failed",
+				"ErrorMessage": "Internal Server Error",})
+		}
+		_, error = cache.Do("SETEX", username, "3600", sessionToken)
+		if error != nil {
+			// If there is an error in setting the cache, return an internal server error
+			c.HTML(http.StatusInternalServerError, "register.html", gin.H{
+				"ErrorTitle": "Registration Failed",
+				"ErrorMessage": "Internal Server Error",})
+		}
+		c.SetCookie("session_token", sessionToken, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
 
 		utils.Render(c, gin.H{
